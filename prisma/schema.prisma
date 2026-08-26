@@ -30,12 +30,7 @@ model Movie {
   createdBy   String
   createdAt   DateTime @default(now())
 
-  creator User @relation(
-    "MovieCreator", // nama relasi
-    fields: [createdBy], // field di model movie yang menjadi foreign key
-    references: [id], // id di model user
-    onDelete: Cascade // movie dihapus -> creator tetap ada, tapi relasi ke movie hilang
-  )
+  creator User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
 
   // 1 Movie → banyak WatchlistItem
   watchlistItems  WatchlistItem[]
@@ -51,17 +46,8 @@ model WatchlistItem {
   createdAt DateTime @default(now()) 
   updatedAt DateTime @default(now())   
 
-  user User @relation(
-    fields: [userId],
-    references: [id],
-    onDelete: Cascade
-  )
-
-  movie Movie @relation(
-    fields: [movieId],
-    references: [id],
-    onDelete: Cascade
-  )
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 }
 
 enum WatchlistStatus {
