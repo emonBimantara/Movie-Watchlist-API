@@ -1,31 +1,72 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id String @id @default(uuid())
-  name String
-  email String @unique
-  password String
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  createdAt   DateTime @default(now())
 
-  createdAt DateTime @default(now())
+  // 1 User bisa -> banyak Movie dan WatchlistItem
+  movies          Movie[]         @relation("MovieCreator")
+  watchlistItems  WatchlistItem[]   
 }
 
-// model Movie {
-  
-// }
+model Movie {
+  id          String @id @default(uuid())
+  title       String
+  overview    String?
+  releaseYear Int
+  genres      String[] @default([])
+  runtime     Int?
+  posterUrl   String?
+  createdBy   String
+  createdAt   DateTime @default(now())
 
-// model Watchlist {
-  
-// }
-// USER => MOVIE -> WATCHLIST
+  creator User @relation(
+    "MovieCreator", // nama relasi
+    fields: [createdBy], // field di model movie yang menjadi foreign key
+    references: [id], // id di model user
+    onDelete: Cascade // movie dihapus -> creator tetap ada, tapi relasi ke movie hilang
+  )
+
+  // 1 Movie → banyak WatchlistItem
+  watchlistItems  WatchlistItem[]
+}
+
+model WatchlistItem {
+  id        String   @id @default(uuid())
+  userId    String   
+  movieId   String   
+  status    WatchlistStatus @default(PLANNED)
+  rating    Int?
+  notes     String?
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @default(now())   
+
+  user User @relation(
+    fields: [userId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  movie Movie @relation(
+    fields: [movieId],
+    references: [id],
+    onDelete: Cascade
+  )
+}
+
+enum WatchlistStatus {
+  PLANNED
+  WATCHING
+  COMPLETED
+  DROPPED
+}
