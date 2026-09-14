@@ -1,12 +1,21 @@
 import express from "express";
 import movieRouter from "./routes/movieRoutes.js";
+import authRouter from "./routes/authRoutes.js"
 import { config } from "dotenv"
-import { disconnectDB } from "./config/db.js";
+import { connectDB, disconnectDB } from "./config/db.js";
 
 config()
+connectDB()
+
 const app = express()
 
+// Body parsing Middlewares
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// API Routes
 app.use("/movies", movieRouter)
+app.use("/auth", authRouter)
 
 const port = 5001
 app.listen(port, () => {
