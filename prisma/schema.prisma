@@ -30,6 +30,7 @@ model Movie {
   createdBy   String
   createdAt   DateTime @default(now())
 
+  // 1 Movie punya 1 user yang membuat movie tersebut
   creator User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
 
   // 1 Movie → banyak WatchlistItem
@@ -48,6 +49,9 @@ model WatchlistItem {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
+
+  // 1 user tidak bisa memasukkan movie yang sama ke watchlist lebih dari sekali
+  @@unique([userId, movieId])
 }
 
 enum WatchlistStatus {
